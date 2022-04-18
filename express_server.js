@@ -24,23 +24,29 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render('urls_show', templateVars);
 });
 
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
+});
+
 const generateRandomString = function() {
   let string = "";
-  const chars = "abcdefghijklmnopqrstuvwxyz1234567890";
+  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
   for (let i = 0; i < 6; i++) {
-    string += chars.charAt(Math.floor(Math.random() * 36));
+    string += chars.charAt(Math.floor(Math.random() * 62));
   }
   return string;
 };
 
 app.post("/urls", (req, res) => {
-  console.log((req.body));  // Log the POST request body to the console
-  let short = generateRandomString();
-  while(urlDatabase[short]) {
-    short = generateRandomString();
+  const longURL = req.body;  // Log the POST request body to the console
+  let shortURL = generateRandomString();
+  while(urlDatabase[shortURL]) {
+    shortURL = generateRandomString();
   }
-  console.log(short);
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  urlDatabase[shortURL] = longURL.longURL;
+  console.log(urlDatabase);
+  res.redirect(`/urls/${shortURL}`);         // Respond with 'Ok' (we will replace this)
 });
 
 
