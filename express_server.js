@@ -24,10 +24,25 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render('urls_show', templateVars);
 });
 
+const generateRandomString = function() {
+  let string = "";
+  const chars = "abcdefghijklmnopqrstuvwxyz1234567890";
+  for (let i = 0; i < 6; i++) {
+    string += chars.charAt(Math.floor(Math.random() * 36));
+  }
+  return string;
+};
+
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
+  console.log((req.body));  // Log the POST request body to the console
+  let short = generateRandomString();
+  while(urlDatabase[short]) {
+    short = generateRandomString();
+  }
+  console.log(short);
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
+
 
 
 app.get("/", (req, res) => {
