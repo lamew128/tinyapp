@@ -62,10 +62,13 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  if (email === "" || password === "")
+    return res.status(400).send('Email or password emptied!');
   for (let keys in users) {
-    if (users[keys].email === email)
-    console.log('exist');
-    return res.redirect("/register");
+    if (users[keys].email === email) {
+      //console.log('exist');
+      return res.status(400).send('Email existed!');
+    }
   }
   let id = generateRandomString();
   while (users[id]) {
@@ -87,8 +90,9 @@ app.post("/login", (req, res) => {
       return res.redirect("/urls");
     }
   }
-  console.log('wrong');
-  res.redirect("/login");
+  //console.log('wrong');
+  return res.status(400).send('Invaild email or password!');
+  //res.redirect("/login");
 });
 
 app.post("/logout", (req, res) => {
