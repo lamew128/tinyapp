@@ -23,12 +23,12 @@
       <% } else { %>
         <form action="/register" method="GET">
           <div>
-            <button type="register" class="btn btn-primary margin: 1em">REGISTER</button>
+            <button type="register" class="btn btn-primary margin: 1em" action="/register" method="GET">REGISTER</button>
           </div>
         </form>
         <form action="/login" method="GET">
           <div>
-            <button type="login" class="btn btn-primary margin: 1em">LOGIN</button>
+            <button type="login" class="btn btn-primary margin: 1em" action="/register" method="GET">LOGIN</button>
           </div>
         </form>
       <% } %>

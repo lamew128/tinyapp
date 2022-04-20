@@ -64,12 +64,11 @@ app.post("/register", (req, res) => {
   const password = req.body.password;
   if (email === "" || password === "")
     return res.status(400).send('Email or password emptied!');
-  for (let keys in users) {
-    if (users[keys].email === email) {
-      //console.log('exist');
-      return res.status(400).send('Email existed!');
-    }
+  if (emailExist(users, email)) {
+    //console.log('exist');
+    return res.status(400).send('Email existed!');
   }
+  
   let id = generateRandomString();
   while (users[id]) {
     id = generateRandomString();
@@ -84,14 +83,14 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  for (let keys in users) {
-    if (users[keys].email === email && users[keys].password === password) {
-      res.cookie("user_id", keys);
-      return res.redirect("/urls");
-    }
+  if (!emailExist(users, email))
+    return res.status(403).send('Invaild email!');
+  if (auth(users, email, password)) {
+    res.cookie("user_id", auth(users, email, password));
+    return res.redirect("/urls");
   }
   //console.log('wrong');
-  return res.status(400).send('Invaild email or password!');
+  return res.status(403).send('Invaild password!');
   //res.redirect("/login");
 });
 
@@ -148,4 +147,19 @@ function updateURL(database, shortURL, newURL) {
   if (database[shortURL]) { 
     database[shortURL] = newURL;
   }
+};
+
+function emailExist(list, email) {
+  for (const keys in list) {
+    if (list[keys].email === email)
+    return list[keys];
+  }
+  return false;
+};
+
+function auth(list, email, password) {
+  if (emailExist(list, email).password === password) {
+    return emailExist(list, email).id;
+  }
+  return false;
 };
