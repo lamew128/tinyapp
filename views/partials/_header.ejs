@@ -10,7 +10,7 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <div class="d-flex justify-content-end">
+    <div class="d-flex justify-content-end navbar-nav">
       <% if (user_id) { %>
         <div class="d-flex align-items-center">
           <a class="nav-item align-bar">Logged In As: <%= users[user_id].email %></a>
@@ -21,16 +21,10 @@
           </div>
         </form>
       <% } else { %>
-        <form action="/register" method="GET">
-          <div>
-            <button type="register" class="btn btn-primary margin: 1em" action="/register" method="GET">REGISTER</button>
+          <div class="navbar-nav">
+            <a class="nav-item nav-link" href="/register">REGISTER</a>
+            <a class="nav-item nav-link" href="/login">LOGIN</a>
           </div>
-        </form>
-        <form action="/login" method="GET">
-          <div>
-            <button type="login" class="btn btn-primary margin: 1em" action="/register" method="GET">LOGIN</button>
-          </div>
-        </form>
       <% } %>
     </div>
   </nav>

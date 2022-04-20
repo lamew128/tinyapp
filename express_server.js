@@ -8,8 +8,13 @@ app.set("view engine", "ejs");
 const PORT = 3000; // default port 8080
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { 
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "1"
+ },
+  "9sm5xK": { 
+    longURL: "http://www.google.com",
+    userID: "2" }
 };
 
 const users = { 
@@ -30,11 +35,15 @@ app.get("/", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
+  if (req.cookies['user_id'])
+    return res.redirect('/urls');
   const templateVars = { user_id: req.cookies["user_id"], 'users': users };
   res.render('urls_register', templateVars);
 });
 
 app.get("/login", (req, res) => {
+  if (req.cookies['user_id'])
+    return res.redirect('/urls');
   const templateVars = { user_id: req.cookies["user_id"], 'users': users };
   res.render('urls_login', templateVars);
 });
@@ -45,6 +54,8 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+  if (!req.cookies['user_id'])
+    return res.redirect('/login');
   const templateVars = { user_id: req.cookies["user_id"], 'users': users };
   res.render("urls_new", templateVars);
 });
@@ -55,7 +66,9 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  if (!urlDatabase[req.params.shortURL])
+    return res.status(404).send('404 not found');
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
@@ -100,12 +113,14 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  if (!req.cookies['user_id'])
+    return res.redirect('/login');
   const longURL = req.body;
   let shortURL = generateRandomString();
   while(urlDatabase[shortURL]) {
     shortURL = generateRandomString();
   }
-  urlDatabase[shortURL] = longURL.longURL;
+  urlDatabase[shortURL] = { 'longURL': longURL.longURL, userID: req.cookies['user_id']};
   console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`);
 });
@@ -145,7 +160,7 @@ function deleteURL(database, shortURL) {
 
 function updateURL(database, shortURL, newURL) {
   if (database[shortURL]) { 
-    database[shortURL] = newURL;
+    database[shortURL].longURL = newURL;
   }
 };
 
