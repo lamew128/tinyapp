@@ -47,7 +47,6 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
-
 app.post("/urls", (req, res) => {
   const longURL = req.body;
   let shortURL = generateRandomString();
@@ -68,8 +67,6 @@ app.post("/urls/:shortURL/update", (req, res) => {
   updateURL(urlDatabase, req.params.shortURL, req.body.newURL);
   res.redirect(`/urls/${req.params.shortURL}`); 
 });
-
-
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
