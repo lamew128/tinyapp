@@ -12,22 +12,45 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = { 
+  "1": {
+    id: "1", 
+    email: "1@1", 
+    password: "1"
+  },
+ "2": {
+    id: "2", 
+    email: "2@2", 
+    password: "2"
+  }
+}
+
 app.get("/", (req, res) => {
   res.redirect("/urls");
 });
 
+app.get("/register", (req, res) => {
+  const templateVars = { user_id: req.cookies["user_id"], 'users': users };
+  res.render('urls_register', templateVars);
+});
+
+app.get("/login", (req, res) => {
+  const templateVars = { user_id: req.cookies["user_id"], 'users': users };
+  res.render('urls_login', templateVars);
+});
+
 app.get("/urls", (req, res) => {
-  const templateVars = { username: req.cookies["username"], urls: urlDatabase };
+  const templateVars = { user_id: req.cookies["user_id"], 'users': users, urls: urlDatabase };
   res.render('urls_index', templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { username: req.cookies["username"] };
+  const templateVars = { user_id: req.cookies["user_id"], 'users': users };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { username: req.cookies["username"], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { user_id: req.cookies["user_id"], 'users': users, shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render('urls_show', templateVars);
 });
 
@@ -36,14 +59,40 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
-app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie("username", username);
+app.post("/register", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  for (let keys in users) {
+    if (users[keys].email === email)
+    console.log('exist');
+    return res.redirect("/register");
+  }
+  let id = generateRandomString();
+  while (users[id]) {
+    id = generateRandomString();
+  }
+  users[id] = {'id': id, 'email': email, 'password': password };
+  console.log(users);
+  res.cookie("user_id", id);
   res.redirect("/urls");
 });
 
+
+app.post("/login", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  for (let keys in users) {
+    if (users[keys].email === email && users[keys].password === password) {
+      res.cookie("user_id", keys);
+      return res.redirect("/urls");
+    }
+  }
+  console.log('wrong');
+  res.redirect("/login");
+});
+
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
