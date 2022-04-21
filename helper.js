@@ -1,5 +1,11 @@
 const bcrypt = require('bcryptjs');
 
+/*
+  generate a 6 character string from
+  A-Z
+  a-z
+  0-9
+*/
 function generateRandomString() {
   let string = "";
   const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
@@ -9,18 +15,29 @@ function generateRandomString() {
   return string;
 };
 
+/*
+  delete shortURL object from the given database
+*/
 function deleteURL(database, shortURL) {
   if (database[shortURL]) { 
     delete database[shortURL];
   }
 };
 
+/*
+  update long url for the short url from the given database
+*/
 function updateURL(database, shortURL, newURL) {
   if (database[shortURL]) { 
     database[shortURL].longURL = newURL;
   }
 };
 
+/*
+  check if the email exist in the given database
+  if yes, return the user object
+  if no, return undefined
+*/
 function emailExist(list, email) {
   for (const keys in list) {
     if (list[keys].email === email)
@@ -29,6 +46,11 @@ function emailExist(list, email) {
   return undefined;
 };
 
+/*
+  check if the password is correct for the given email in the given database
+  if yes, return the user Id of that user object
+  if no, return false
+*/
 function auth(list, email, password) {
   if (bcrypt.compareSync(password, emailExist(list, email).password)) {
     return emailExist(list, email).id;
@@ -36,14 +58,4 @@ function auth(list, email, password) {
   return false;
 };
 
-function urlsForUser(id) {
-  let urls = {};
-  for (const keys in urlDatabase) {
-    if (urlDatabase[keys].userID === id)
-    urls.push(urlDatabase[keys]);
-  }
-  return urls;
-}
-
-
-module.exports = { generateRandomString, deleteURL, updateURL, auth, emailExist, urlsForUser };
+module.exports = { generateRandomString, deleteURL, updateURL, auth, emailExist };

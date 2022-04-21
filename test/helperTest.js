@@ -1,6 +1,6 @@
 const { assert } = require('chai');
 
-const { generateRandomString, deleteURL, updateURL, auth, emailExist, urlsForUser } = require('../helper.js');
+const { generateRandomString, deleteURL, updateURL, auth, emailExist } = require('../helper.js');
 
 const testUsers = {
   "userRandomID": {
