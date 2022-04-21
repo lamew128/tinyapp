@@ -4,9 +4,9 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["screenshot description"](https://github.com/lamew128/tinyapp/blob/master/docs/1.png)
-!["screenshot description"](https://github.com/lamew128/tinyapp/blob/master/docs/2.png)
-!["screenshot description"](https://github.com/lamew128/tinyapp/blob/master/docs/3.png)
+!["Login page"](https://github.com/lamew128/tinyapp/blob/master/docs/1.png)
+!["Urls page"](https://github.com/lamew128/tinyapp/blob/master/docs/2.png)
+!["short url page for upating the long url"](https://github.com/lamew128/tinyapp/blob/master/docs/3.png)
 
 ## Dependencies
 
