@@ -61,6 +61,10 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+  if (!req.cookies['user_id'])
+    return res.status(400).send('Please login!'); 
+  if (req.cookies['user_id'] !== urlDatabase[req.params.shortURL].userID)
+    return res.status(400).send('Acess denied!');
   const templateVars = { user_id: req.cookies["user_id"], 'users': users, shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render('urls_show', templateVars);
 });
@@ -87,7 +91,7 @@ app.post("/register", (req, res) => {
     id = generateRandomString();
   }
   users[id] = {'id': id, 'email': email, 'password': password };
-  console.log(users);
+  //console.log(users);
   res.cookie("user_id", id);
   res.redirect("/urls");
 });
@@ -121,16 +125,24 @@ app.post("/urls", (req, res) => {
     shortURL = generateRandomString();
   }
   urlDatabase[shortURL] = { 'longURL': longURL.longURL, userID: req.cookies['user_id']};
-  console.log(urlDatabase);
+  //console.log(urlDatabase);
   res.redirect(`/urls/${shortURL}`);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
+  if (!req.cookies['user_id'])
+    return res.status(403).send('Access denied!'); 
+  if (req.cookies['user_id'] !== urlDatabase[req.params.shortURL].userID)
+    return res.status(403).send('Access denied!');
   deleteURL(urlDatabase, req.params.shortURL);
   res.redirect(`/urls`); 
 });
 
 app.post("/urls/:shortURL/update", (req, res) => {
+  if (!req.cookies['user_id'])
+    return res.status(400).send('Access denied!'); 
+  if (req.cookies['user_id'] !== urlDatabase[req.params.shortURL].userID)
+    return res.status(400).send('Access denied!');
   updateURL(urlDatabase, req.params.shortURL, req.body.newURL);
   res.redirect(`/urls/${req.params.shortURL}`); 
 });
@@ -178,3 +190,12 @@ function auth(list, email, password) {
   }
   return false;
 };
+
+function urlsForUser(id) {
+  let urls = {};
+  for (const keys in urlDatabase) {
+    if (urlDatabase[keys].userID === id)
+    urls.push(urlDatabase[keys]);
+  }
+  return urls;
+}
