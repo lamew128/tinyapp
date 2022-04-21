@@ -1,11 +1,10 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
 const cookieSession = require("cookie-session");
 const bcrypt = require('bcryptjs');
+const { generateRandomString, deleteURL, updateURL, auth, emailExist, urlsForUser } = require('./helper');
 const app = express();
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser()); //req.session req.sessions
 app.use(cookieSession({ //req.session
   name: "session",
   keys: ["qwer"]
@@ -161,47 +160,3 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-function generateRandomString() {
-  let string = "";
-  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-  for (let i = 0; i < 6; i++) {
-    string += chars.charAt(Math.floor(Math.random() * 62));
-  }
-  return string;
-};
-
-function deleteURL(database, shortURL) {
-  if (database[shortURL]) { 
-    delete database[shortURL];
-  }
-};
-
-function updateURL(database, shortURL, newURL) {
-  if (database[shortURL]) { 
-    database[shortURL].longURL = newURL;
-  }
-};
-
-function emailExist(list, email) {
-  for (const keys in list) {
-    if (list[keys].email === email)
-    return list[keys];
-  }
-  return false;
-};
-
-function auth(list, email, password) {
-  if (bcrypt.compareSync(password, emailExist(list, email).password)) {
-    return emailExist(list, email).id;
-  }
-  return false;
-};
-
-function urlsForUser(id) {
-  let urls = {};
-  for (const keys in urlDatabase) {
-    if (urlDatabase[keys].userID === id)
-    urls.push(urlDatabase[keys]);
-  }
-  return urls;
-}
