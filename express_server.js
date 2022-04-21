@@ -1,11 +1,19 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+//const cookieSession = require("cookie-session");
+const bcrypt = require('bcryptjs');
 const app = express();
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+app.use(cookieParser()); //req.cookies res.cookies
+//app.use(cookieSession({ //req.session
+//  name: "session",
+//  keys: ["qwer"]
+//}));
 app.set("view engine", "ejs");
 const PORT = 3000; // default port 8080
+//const password = "purple-monkey-dinosaur"; // found in the req.params object
+//const hashedPassword = bcrypt.hashSync(password, 10);
 
 const urlDatabase = {
   "b2xVn2": { 
@@ -21,12 +29,12 @@ const users = {
   "1": {
     id: "1", 
     email: "1@1", 
-    password: "1"
+    password: bcrypt.hashSync("1", 10)
   },
  "2": {
     id: "2", 
     email: "2@2", 
-    password: "2"
+    password: bcrypt.hashSync("2", 10)
   }
 }
 
@@ -82,7 +90,6 @@ app.post("/register", (req, res) => {
   if (email === "" || password === "")
     return res.status(400).send('Email or password emptied!');
   if (emailExist(users, email)) {
-    //console.log('exist');
     return res.status(400).send('Email existed!');
   }
   
@@ -90,7 +97,7 @@ app.post("/register", (req, res) => {
   while (users[id]) {
     id = generateRandomString();
   }
-  users[id] = {'id': id, 'email': email, 'password': password };
+  users[id] = {'id': id, 'email': email, 'password': bcrypt.hashSync(password, 10) };
   //console.log(users);
   res.cookie("user_id", id);
   res.redirect("/urls");
@@ -185,7 +192,7 @@ function emailExist(list, email) {
 };
 
 function auth(list, email, password) {
-  if (emailExist(list, email).password === password) {
+  if (bcrypt.compareSync(password, emailExist(list, email).password)) {
     return emailExist(list, email).id;
   }
   return false;
