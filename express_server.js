@@ -37,9 +37,12 @@ const users = {
   }
 }
 
-//redirects to /urls when get /
+//redirects to /urls if logged in
+//redirects to /login if not logged in
 app.get("/", (req, res) => {
-  res.redirect("/urls");
+  if (req.session['user_id'])
+    return res.redirect('/urls');
+  res.redirect("/login");
 });
 
 /*
@@ -67,9 +70,13 @@ app.get("/login", (req, res) => {
 });
 
 /*
-  render /urls page with user database, urls datadase and cookies for header display
+  checks cookies if there is an user logged in
+  if no, send error code 403
+  if yes, render /urls page with user database, urls datadase and cookies for header display
 */
 app.get("/urls", (req, res) => {
+  if (!req.session['user_id'])
+    return res.status(403).send("Not logged in!").redirect('/login');
   const templateVars = { user_id: req.session["user_id"], 'users': users, urls: urlDatabase };
   res.render('urls_index', templateVars);
 });
@@ -87,18 +94,22 @@ app.get("/urls/new", (req, res) => {
 });
 
 /*
+  checks cookies if the short url exist
+  if no, send error code 404
   checks cookies if there is an user logged in
   if no, send error code 400 to ask the user to login
   checks cookies if the user owns the short url
   if no, send error code 400
-  if yes, render /urls/:shortURL page with user database ,short/long url and cookies for header display
+  if yes, render /urls/:id page with user database ,short/long url and cookies for header display
 */
-app.get("/urls/:shortURL", (req, res) => {
+app.get("/urls/:id", (req, res) => {
+  if (!urlDatabase[req.params.id])
+    return res.status(404).send('404 not found!');
   if (!req.session['user_id'])
     return res.status(400).send('Please login!'); 
-  if (req.session['user_id'] !== urlDatabase[req.params.shortURL].userID)
+  if (req.session['user_id'] !== urlDatabase[req.params.id].userID)
     return res.status(400).send('Acess denied!');
-  const templateVars = { user_id: req.session["user_id"], 'users': users, shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL };
+  const templateVars = { user_id: req.session["user_id"], 'users': users, shortURL: req.params.id, longURL: urlDatabase[req.params.id].longURL };
   res.render('urls_show', templateVars);
 });
 
@@ -107,10 +118,10 @@ app.get("/urls/:shortURL", (req, res) => {
   if no, send error code 404
   if yes, redirect to the long url
 */
-app.get("/u/:shortURL", (req, res) => {
-  if (!urlDatabase[req.params.shortURL])
+app.get("/u/:id", (req, res) => {
+  if (!urlDatabase[req.params.id])
     return res.status(404).send('404 not found');
-  const longURL = urlDatabase[req.params.shortURL].longURL;
+  const longURL = urlDatabase[req.params.id].longURL;
   res.redirect(longURL);
 });
 
@@ -178,7 +189,7 @@ app.post("/logout", (req, res) => {
 */
 app.post("/urls", (req, res) => {
   if (!req.session['user_id'])
-    return res.redirect('/login');
+    return res.status(403).send("Please login");
   const longURL = req.body;
   let shortURL = generateRandomString();
   while(urlDatabase[shortURL]) {
@@ -196,12 +207,12 @@ app.post("/urls", (req, res) => {
   if yes, delete the short url from the database and redirect to /urls
   generate a unique random string which for the long url and add it to th e database
 */
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.post("/urls/:id/delete", (req, res) => {
   if (!req.session['user_id'])
     return res.status(403).send('Access denied!'); 
-  if (req.session['user_id'] !== urlDatabase[req.params.shortURL].userID)
+  if (req.session['user_id'] !== urlDatabase[req.params.id].userID)
     return res.status(403).send('Access denied!');
-  deleteURL(urlDatabase, req.params.shortURL);
+  deleteURL(urlDatabase, req.params.id);
   res.redirect(`/urls`); 
 });
 
@@ -210,15 +221,15 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   if no, if no, send error code 403
   checks cookies if the user owns the short url
   if no, if no, send error code 403
-  if yes, update the long url for the short url and refresh the page
+  if yes, update the long url for the short url and redirect to /urls
 */
-app.post("/urls/:shortURL/update", (req, res) => {
+app.post("/urls/:id/update", (req, res) => {
   if (!req.session['user_id'])
     return res.status(400).send('Access denied!'); 
-  if (req.session['user_id'] !== urlDatabase[req.params.shortURL].userID)
+  if (req.session['user_id'] !== urlDatabase[req.params.id].userID)
     return res.status(400).send('Access denied!');
-  updateURL(urlDatabase, req.params.shortURL, req.body.newURL);
-  res.redirect(`/urls/${req.params.shortURL}`); 
+  updateURL(urlDatabase, req.params.id, req.body.newURL);
+  res.redirect(`/urls`); 
 });
 
 /*
