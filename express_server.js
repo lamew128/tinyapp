@@ -65,7 +65,7 @@ app.get("/urls/:shortURL", (req, res) => {
     return res.status(400).send('Please login!'); 
   if (req.cookies['user_id'] !== urlDatabase[req.params.shortURL].userID)
     return res.status(400).send('Acess denied!');
-  const templateVars = { user_id: req.cookies["user_id"], 'users': users, shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { user_id: req.cookies["user_id"], 'users': users, shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL };
   res.render('urls_show', templateVars);
 });
 
