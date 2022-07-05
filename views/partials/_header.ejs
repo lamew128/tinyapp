@@ -11,9 +11,9 @@
       </div>
     </div>
     <div class="d-flex justify-content-end">
-      <% if (username) { %>
+      <% if (user_id) { %>
         <div class="d-flex align-items-center">
-          <a class="nav-item align-bar">Logged In As: <%= username %></a>
+          <a class="nav-item align-bar">Logged In As: <%= users[user_id].email %></a>
         </div>
         <form action="/logout" method="POST">
           <div>
@@ -21,11 +21,14 @@
           </div>
         </form>
       <% } else { %>
-        <form action="/login" method="POST">
+        <form action="/register" method="GET">
           <div>
-            <label for="username">Username:</label>
-            <input type="text" name="username" style="width: 300px; margin: 1em">
-            <button type="login" class="btn btn-primary">LOGIN</button>
+            <button type="register" class="btn btn-primary margin: 1em" action="/register" method="GET">REGISTER</button>
+          </div>
+        </form>
+        <form action="/login" method="GET">
+          <div>
+            <button type="login" class="btn btn-primary margin: 1em" action="/register" method="GET">LOGIN</button>
           </div>
         </form>
       <% } %>
